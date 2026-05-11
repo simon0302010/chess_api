@@ -11,8 +11,6 @@ use tokio::sync::Mutex;
 mod squares;
 mod pieces;
 
-//use squares::ToString;
-
 use crate::pieces::SimplifiedMove;
 
 type SharedBoard = Arc<Mutex<ChessBoard>>;
@@ -33,13 +31,17 @@ async fn main() {
 struct GetMovesResponse {
     success: bool,
     text: String,
-    moves: Option<Vec<SimplifiedMove>>
+    moves: Option<Vec<SimplifiedMove>>,
+    side_to_move: String
 }
 
 async fn get_moves(
     State(board): State<SharedBoard>
 ) -> (StatusCode, Json<GetMovesResponse>) {
     let board = board.lock().await;
+
+    let side_to_move = board.get_side_to_move().to_string();
+
 
     let mut moves: Vec<SimplifiedMove> = Vec::new();
     for board_move in board.get_legal_moves() {
@@ -48,7 +50,8 @@ async fn get_moves(
             Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(GetMovesResponse {
                 success: false,
                 text: format!("Failed to get possible moves: {}", e),
-                moves: None
+                moves: None,
+                side_to_move
             }))
         };
 
@@ -61,6 +64,7 @@ async fn get_moves(
     (StatusCode::OK, Json(GetMovesResponse {
         success: true,
         text: "Successfully fetched possible moves".to_string(),
-        moves: Some(moves)
+        moves: Some(moves),
+        side_to_move
     }))
 }
