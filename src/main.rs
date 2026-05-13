@@ -25,7 +25,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/moves/available", get(get_legal_moves))
-        .route("/moves/past", get(get_last_moves))
+        .route("/moves/history", get(get_last_moves))
         .route("/move", post(make_move))
         .with_state(state);
 

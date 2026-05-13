@@ -74,7 +74,7 @@ pub async fn get_last_moves(
         .get_action_history()
         .get_moves()
         .iter()
-        .filter_map(|m| SimplifiedMove::from_board_move(m.clone()).ok())
+        .filter_map(|m| SimplifiedMove::from_board_move(*m).ok())
         .collect();
 
     (
