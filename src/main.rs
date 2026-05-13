@@ -18,7 +18,7 @@ async fn main() {
     let board = Arc::new(Mutex::new(ChessBoard::default()));
 
     let app = Router::new()
-        .route("/moves/get_legal", get(get_legal_moves))
+        .route("/moves/available", get(get_legal_moves))
         .with_state(board);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.expect("Failed to setup listener");

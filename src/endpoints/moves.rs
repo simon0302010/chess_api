@@ -18,7 +18,6 @@ pub async fn get_legal_moves(
 
     let side_to_move = board.get_side_to_move().to_string();
 
-
     let mut moves: Vec<SimplifiedMove> = Vec::new();
     for board_move in board.get_legal_moves() {
         let piece_move = match board_move.piece_move() {
