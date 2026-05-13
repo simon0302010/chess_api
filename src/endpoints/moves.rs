@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{
     SharedApiState,
-    pieces::{FromSimplifiedMove, SimplifiedMove},
+    pieces::{FromSimplifiedMove, SimplifiedMove, FromBoardMove},
 };
 
 #[derive(Serialize)]
@@ -18,12 +18,12 @@ pub struct GetMovesResponse {
 pub async fn get_legal_moves(
     State(state): State<SharedApiState>,
 ) -> (StatusCode, Json<GetMovesResponse>) {
-    let board = state.lock().await.board;
+    let game = state.lock().await.game.clone();
 
-    let side_to_move = board.get_side_to_move().to_string();
+    let side_to_move = game.get_side_to_move().to_string();
 
     let mut moves: Vec<SimplifiedMove> = Vec::new();
-    for board_move in board.get_legal_moves() {
+    for board_move in game.get_legal_moves() {
         let piece_move = match board_move.piece_move() {
             Ok(mov) => mov,
             Err(e) => {
@@ -68,14 +68,21 @@ pub async fn get_last_moves(
 ) -> (StatusCode, Json<GetMovesResponse>) {
     let state = state.lock().await;
 
-    let side_to_move = state.board.get_side_to_move().to_string();
+    let side_to_move = state.game.get_side_to_move().to_string();
+
+    let moves = state.game
+        .get_action_history()
+        .get_moves()
+        .iter()
+        .filter_map(|m| SimplifiedMove::from_board_move(m.clone()).ok())
+        .collect();
 
     (
         StatusCode::OK,
         Json(GetMovesResponse {
             success: true,
             text: "Successfully fetched past moves".to_string(),
-            moves: Some(state.moves.clone()),
+            moves: Some(moves),
             side_to_move,
         }),
     )
@@ -102,13 +109,13 @@ pub async fn make_move(
                 Json(MakeMoveResponse {
                     success: false,
                     text: format!("Failed to parse source or destination: {}", e),
-                    next_side: state.board.get_side_to_move().to_string(),
+                    next_side: state.game.get_side_to_move().to_string(),
                 }),
             );
         }
     };
 
-    match state.board.make_move_mut(&board_move) {
+    match state.game.make_move(&libchess::Action::MakeMove(board_move)) {
         Ok(_) => {
             let piece_move = match board_move.piece_move() {
                 Ok(mov) => mov,
@@ -118,7 +125,7 @@ pub async fn make_move(
                         Json(MakeMoveResponse {
                             success: false,
                             text: format!("Failed to move {}: {}", payload.piece_type, e),
-                            next_side: state.board.get_side_to_move().to_string(),
+                            next_side: state.game.get_side_to_move().to_string(),
                         }),
                     );
                 }
@@ -137,7 +144,7 @@ pub async fn make_move(
                             .to_string()
                             .to_uppercase()
                     ),
-                    next_side: state.board.get_side_to_move().to_string(),
+                    next_side: state.game.get_side_to_move().to_string(),
                 }),
             )
         }
@@ -146,7 +153,7 @@ pub async fn make_move(
             Json(MakeMoveResponse {
                 success: false,
                 text: format!("{}", e),
-                next_side: state.board.get_side_to_move().to_string(),
+                next_side: state.game.get_side_to_move().to_string(),
             }),
         ),
     }

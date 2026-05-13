@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use axum::Router;
 use axum::routing::{get, post};
-use libchess::ChessBoard;
+use libchess::{ChessBoard, Game};
 use tokio::sync::Mutex;
 
 mod endpoints;
@@ -15,8 +15,8 @@ type SharedApiState = Arc<Mutex<ApiState>>;
 
 #[derive(Default)]
 struct ApiState {
-    board: ChessBoard,
-    moves: Vec<crate::pieces::SimplifiedMove>,
+    game: Game,
+    //moves: Vec<crate::pieces::SimplifiedMove>,
 }
 
 #[tokio::main]

@@ -34,3 +34,15 @@ impl FromSimplifiedMove for BoardMove {
         Ok(mv!(value.piece_type, source, destination))
     }
 }
+
+pub trait FromBoardMove {
+    fn from_board_move(value: BoardMove) -> Result<SimplifiedMove, LibChessError>;
+}
+
+impl FromBoardMove for SimplifiedMove {
+    fn from_board_move(value: BoardMove) -> Result<SimplifiedMove, LibChessError> {
+        let piece_move = value.piece_move()?;
+
+        Ok(Self { piece_type: piece_move.get_piece_type(), source: piece_move.get_source_square().to_string().to_uppercase(), destination: piece_move.get_destination_square().to_string().to_uppercase() })
+    }
+}
