@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::Router;
-use axum::routing::get;
+use axum::routing::{get, post};
 use libchess::ChessBoard;
 use tokio::sync::Mutex;
 
@@ -26,7 +26,7 @@ async fn main() {
     let app = Router::new()
         .route("/moves/available", get(get_legal_moves))
         .route("/moves/past", get(get_last_moves))
-        .route("/move", get(make_move))
+        .route("/move", post(make_move))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")

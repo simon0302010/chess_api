@@ -28,8 +28,8 @@ pub trait FromSimplifiedMove {
 
 impl FromSimplifiedMove for BoardMove {
     fn from_simplified(value: SimplifiedMove) -> Result<BoardMove, LibChessError> {
-        let source = Square::from_str(value.source.as_str())?;
-        let destination = Square::from_str(value.destination.as_str())?;
+        let source = Square::from_str(value.source.to_lowercase().as_str())?;
+        let destination = Square::from_str(value.destination.to_lowercase().as_str())?;
 
         Ok(mv!(value.piece_type, source, destination))
     }

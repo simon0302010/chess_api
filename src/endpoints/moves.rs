@@ -129,7 +129,7 @@ pub async fn make_move(
                 Json(MakeMoveResponse {
                     success: true,
                     text: format!(
-                        "Successfully moved {} from {} to {}",
+                        "Successfully moved {:?} from {} to {}",
                         payload.piece_type,
                         piece_move.get_source_square().to_string().to_uppercase(),
                         piece_move
