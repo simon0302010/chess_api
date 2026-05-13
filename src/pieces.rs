@@ -12,7 +12,7 @@ enum PieceTypeDef {
     King,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct SimplifiedMove {
     #[serde(with = "PieceTypeDef")]
     pub piece_type: PieceType,

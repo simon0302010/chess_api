@@ -9,17 +9,24 @@ mod squares;
 mod pieces;
 mod endpoints;
 
-use crate::endpoints::moves::get_legal_moves;
+use crate::endpoints::moves::*;
 
-type SharedBoard = Arc<Mutex<ChessBoard>>;
+type SharedApiState = Arc<Mutex<ApiState>>;
+
+#[derive(Default)]
+struct ApiState {
+    board: ChessBoard,
+    moves: Vec<crate::pieces::SimplifiedMove>
+}
 
 #[tokio::main]
 async fn main() {
-    let board = Arc::new(Mutex::new(ChessBoard::default()));
+    let state = Arc::new(Mutex::new(ApiState::default()));
 
     let app = Router::new()
         .route("/moves/available", get(get_legal_moves))
-        .with_state(board);
+        .route("/moves/past", get(get_last_moves))
+        .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.expect("Failed to setup listener");
     axum::serve(listener, app).await.expect("Failed to serve app");

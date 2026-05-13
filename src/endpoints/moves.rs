@@ -1,7 +1,7 @@
 use axum::{Json, extract::State, http::StatusCode};
 use serde::Serialize;
 
-use crate::{SharedBoard, pieces::SimplifiedMove};
+use crate::{SharedApiState, pieces::SimplifiedMove};
 
 #[derive(Serialize)]
 pub struct GetMovesResponse {
@@ -12,9 +12,9 @@ pub struct GetMovesResponse {
 }
 
 pub async fn get_legal_moves(
-    State(board): State<SharedBoard>
+    State(state): State<SharedApiState>
 ) -> (StatusCode, Json<GetMovesResponse>) {
-    let board = board.lock().await;
+    let board = state.lock().await.board;
 
     let side_to_move = board.get_side_to_move().to_string();
 
@@ -42,4 +42,17 @@ pub async fn get_legal_moves(
         moves: Some(moves),
         side_to_move
     }))
+}
+
+pub async fn get_last_moves(
+    State(state): State<SharedApiState>
+) -> (StatusCode, Json<GetMovesResponse>) {
+    let state = state.lock().await;
+
+    let side_to_move = state.board.get_side_to_move().to_string();
+
+    (
+        StatusCode::OK,
+        Json(GetMovesResponse { success: true, text: "Successfully fetched past moves".to_string(), moves: Some(state.moves.clone()), side_to_move })
+    )
 }
