@@ -19,7 +19,7 @@ pub struct SimplifiedMove {
     #[serde(with = "PieceTypeDef")]
     pub piece_type: PieceType,
     pub source: String,
-    pub destination: String
+    pub destination: String,
 }
 
 pub trait FromSimplifiedMove {

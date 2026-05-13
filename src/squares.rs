@@ -72,7 +72,7 @@ impl FromString for Square {
             "H6" => H6,
             "H7" => H7,
             "H8" => H8,
-            _ => return Err("Invalid square".to_string())
+            _ => return Err("Invalid square".to_string()),
         };
 
         Ok(res)

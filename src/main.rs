@@ -5,9 +5,9 @@ use axum::routing::get;
 use libchess::ChessBoard;
 use tokio::sync::Mutex;
 
-mod squares;
-mod pieces;
 mod endpoints;
+mod pieces;
+mod squares;
 
 use crate::endpoints::moves::*;
 
@@ -16,7 +16,7 @@ type SharedApiState = Arc<Mutex<ApiState>>;
 #[derive(Default)]
 struct ApiState {
     board: ChessBoard,
-    moves: Vec<crate::pieces::SimplifiedMove>
+    moves: Vec<crate::pieces::SimplifiedMove>,
 }
 
 #[tokio::main]
@@ -29,6 +29,10 @@ async fn main() {
         .route("/move", get(make_move))
         .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.expect("Failed to setup listener");
-    axum::serve(listener, app).await.expect("Failed to serve app");
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+        .await
+        .expect("Failed to setup listener");
+    axum::serve(listener, app)
+        .await
+        .expect("Failed to serve app");
 }
